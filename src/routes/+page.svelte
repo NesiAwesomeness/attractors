@@ -2,10 +2,10 @@
 	import App from '$lib/App.svelte';
 </script>
 
-<div class="canvas"><App /></div>
+<div class="attractor"><App /></div>
 
 <style>
-	.canvas {
+	.attractor {
 		height: 100vh;
 		width: 100vw;
 		background-color: black;

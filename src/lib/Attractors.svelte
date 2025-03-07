@@ -24,6 +24,8 @@
 	// Mouse raycasting...
 	const { dom, camera, scene } = useThrelte();
 	let mousePoint = new Vector2();
+	let lastMousePoint = new Vector2();
+	let mouseTravel = 0.0;
 
 	let mousePosition = new Vector3(0.1, 0.1, 0.1);
 	const planeGeo = new PlaneGeometry(360, 360);
@@ -36,6 +38,7 @@
 		const raycaster = new Raycaster();
 
 		dom.addEventListener('pointermove', (e) => {
+			// console.log(e);
 			mousePoint = new Vector2(
 				(e.clientX / window.innerWidth) * 2.0 - 1,
 				(e.clientY / window.innerHeight) * -2.0 + 1
@@ -88,6 +91,13 @@
 
 		// console.log($camera);
 
+		mouseTravel +=
+			Math.max(
+				Math.abs(mousePoint.x - lastMousePoint.x),
+				Math.abs(mousePoint.y - lastMousePoint.y)
+			) * 8.0;
+
+		lastMousePoint = mousePoint;
 		for (let i = 0; i < particleCount * 3; i++) {
 			// explosives
 			if (i % 3 === 0 && mousePosition) {
@@ -102,7 +112,7 @@
 						Math.pow(z - mousePosition.z, 2)
 				);
 
-				influence = (1 / distanceToExplostion) * intensity;
+				influence = (1 / distanceToExplostion) * intensity * mouseTravel;
 
 				const eXDir = (x - mousePosition.x) / distanceToExplostion;
 				const eYDir = (y - mousePosition.y) / distanceToExplostion;
@@ -147,6 +157,9 @@
 		}
 
 		pointGeometry.setAttribute('position', new BufferAttribute(particleArray, 3));
+		mouseTravel -= delta;
+
+		mouseTravel = clamp(mouseTravel, -0.3, 1.5);
 	});
 </script>
 
@@ -161,7 +174,7 @@
 </T>
 
 <T.Points geometry={pointGeometry} position={[0, 0, -20]} frustumCulled={false}>
-	<T.PointsMaterial size={0.5} color={'hotpink'} side={1} />
+	<T.PointsMaterial size={0.5} color={'white'} fog />
 </T.Points>
 
 <T is={fMesh} />
